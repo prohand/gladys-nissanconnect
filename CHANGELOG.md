@@ -6,6 +6,8 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.0.1] - 2026-11-12
+
 ### Added
 
 - First version of the Nissan Connect integration for Gladys Assistant (cloud,
@@ -26,4 +28,5 @@ All notable changes to this integration are documented here. The format follows
 - Configuration screen actions: test the connection, wake up a car, identify a car.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/prohand/gladys-nissanconnect/commits/main
+[Unreleased]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/prohand/gladys-nissanconnect/releases/tag/v0.0.1
