@@ -1,0 +1,844 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Nissan Connect",
+  "description": {
+    "en": "Battery, range, charge and climate of your Nissan electric car (Leaf, Ariya…).",
+    "fr": "Batterie, autonomie, charge et clim de votre Nissan électrique (Leaf, Ariya…).",
+    "de": "Akku, Reichweite, Laden und Klima deines Nissan-Elektroautos (Leaf, Ariya…).",
+    "es": "Batería, autonomía, carga y clima de su Nissan eléctrico (Leaf, Ariya…)."
+  },
+  "version": "0.0.0",
+  "docker_image": "ghcr.io/prohand/gladys-nissanconnect:0.0.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/prohand/gladys-nissanconnect/main/cover.png",
+  "categories": ["vehicles", "energy"],
+  "keywords": [
+    "nissan",
+    "nissanconnect",
+    "leaf",
+    "ariya",
+    "electric car",
+    "voiture électrique",
+    "ev",
+    "kamereon",
+    "charge",
+    "climate"
+  ],
+  "transports": ["cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "This integration uses the NissanConnect Services cloud (Europe), the same as the mobile app: fill in the login and password of that app. Your car must be activated in the app first. Nissan offers no public API: the integration speaks the app's own language, which Nissan may change without notice.",
+        "fr": "Cette intégration passe par le cloud NissanConnect Services (Europe), le même que l’application mobile : renseignez l’identifiant et le mot de passe de cette application. Votre voiture doit d’abord être activée dans l’application. Nissan ne propose pas d’API publique : l’intégration parle le langage de l’application, que Nissan peut changer sans prévenir.",
+        "de": "Diese Integration nutzt die NissanConnect-Services-Cloud (Europa), dieselbe wie die mobile App: Gib die Anmeldedaten und das Passwort dieser App ein. Dein Auto muss zuerst in der App aktiviert sein. Nissan bietet keine öffentliche API: Die Integration spricht die Sprache der App, die Nissan ohne Vorankündigung ändern kann.",
+        "es": "Esta integración usa la nube NissanConnect Services (Europa), la misma que la app móvil: indique el usuario y la contraseña de esa app. Su coche debe estar activado primero en la app. Nissan no ofrece una API pública: la integración habla el lenguaje de la app, que Nissan puede cambiar sin aviso."
+      },
+      "links": [
+        {
+          "url": "https://github.com/prohand/gladys-nissanconnect/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l'intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
+        }
+      ]
+    },
+    {
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "NissanConnect login (e-mail)",
+        "fr": "Identifiant NissanConnect (e-mail)",
+        "de": "NissanConnect-Anmeldung (E-Mail)",
+        "es": "Usuario NissanConnect (e-mail)"
+      },
+      "description": {
+        "en": "The e-mail address you sign in to the NissanConnect Services app with.",
+        "fr": "L’adresse e-mail avec laquelle vous vous connectez à l’application NissanConnect Services.",
+        "de": "Die E-Mail-Adresse, mit der du dich in der NissanConnect-Services-App anmeldest.",
+        "es": "La dirección de e-mail con la que inicia sesión en la app NissanConnect Services."
+      },
+      "placeholder": {
+        "en": "you@example.com",
+        "fr": "vous@exemple.fr",
+        "de": "du@beispiel.de",
+        "es": "usted@ejemplo.es"
+      },
+      "required": true
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "NissanConnect password",
+        "fr": "Mot de passe NissanConnect",
+        "de": "NissanConnect-Passwort",
+        "es": "Contraseña NissanConnect"
+      },
+      "description": {
+        "en": "Kept by Gladys as a secret, never written in the logs.",
+        "fr": "Conservé par Gladys comme un secret, jamais écrit dans les journaux.",
+        "de": "Von Gladys als Geheimnis gespeichert, nie in die Protokolle geschrieben.",
+        "es": "Gladys lo guarda como secreto, nunca se escribe en los registros."
+      },
+      "required": true
+    },
+    {
+      "key": "poll_frequency",
+      "type": "number",
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)",
+        "de": "Aktualisierungsintervall (s)",
+        "es": "Intervalo de actualización (s)"
+      },
+      "description": {
+        "en": "How often Gladys reads, in seconds, what your car last sent to the Nissan cloud. It does not wake the car up.",
+        "fr": "Fréquence, en secondes, à laquelle Gladys lit ce que votre voiture a envoyé en dernier au cloud Nissan. Cela ne réveille pas la voiture.",
+        "de": "Wie oft Gladys in Sekunden liest, was dein Auto zuletzt an die Nissan-Cloud gesendet hat. Das weckt das Auto nicht auf.",
+        "es": "Con qué frecuencia, en segundos, Gladys lee lo último que su coche envió a la nube de Nissan. No despierta el coche."
+      },
+      "required": false,
+      "default": 900,
+      "min": 300,
+      "max": 86400
+    },
+    {
+      "key": "wake_interval",
+      "type": "number",
+      "label": {
+        "en": "Car wake-up interval (min)",
+        "fr": "Intervalle de réveil de la voiture (min)",
+        "de": "Weckintervall des Autos (min)",
+        "es": "Intervalo de activación del coche (min)"
+      },
+      "description": {
+        "en": "Every how many minutes the car itself is asked to send fresh data. Each wake-up uses the car's 12 V battery: keep 0 (only when you ask) or a large value such as 240.",
+        "fr": "Toutes les combien de minutes on demande à la voiture elle-même d’envoyer des données fraîches. Chaque réveil puise dans la batterie 12 V : gardez 0 (seulement à la demande) ou une grande valeur comme 240.",
+        "de": "Alle wie viele Minuten das Auto selbst gebeten wird, frische Daten zu senden. Jedes Wecken belastet die 12-V-Batterie: Lass 0 (nur auf Anfrage) oder einen großen Wert wie 240.",
+        "es": "Cada cuántos minutos se pide al propio coche que envíe datos nuevos. Cada activación consume la batería de 12 V: deje 0 (solo a petición) o un valor alto como 240."
+      },
+      "required": false,
+      "default": 0,
+      "min": 0,
+      "max": 1440
+    },
+    {
+      "key": "distance_unit",
+      "type": "select",
+      "label": {
+        "en": "Distance unit",
+        "fr": "Unité de distance",
+        "de": "Entfernungseinheit",
+        "es": "Unidad de distancia"
+      },
+      "description": {
+        "en": "Unit of the range and the odometer. Changing it later needs the car to be updated from the Discovery screen.",
+        "fr": "Unité de l’autonomie et du compteur. La changer ensuite demande de mettre à jour la voiture depuis l’écran Découverte.",
+        "de": "Einheit der Reichweite und des Kilometerstands. Eine spätere Änderung erfordert ein Update des Autos im Bildschirm Erkennung.",
+        "es": "Unidad de la autonomía y del odómetro. Cambiarla después requiere actualizar el coche desde la pantalla Descubrimiento."
+      },
+      "required": false,
+      "default": "km",
+      "options": [
+        {
+          "value": "km",
+          "label": {
+            "en": "Kilometres",
+            "fr": "Kilomètres",
+            "de": "Kilometer",
+            "es": "Kilómetros"
+          }
+        },
+        {
+          "value": "mile",
+          "label": {
+            "en": "Miles",
+            "fr": "Miles",
+            "de": "Meilen",
+            "es": "Millas"
+          }
+        }
+      ]
+    },
+    {
+      "key": "climate_temperature",
+      "type": "number",
+      "label": {
+        "en": "Climate temperature (°C)",
+        "fr": "Température de la clim (°C)",
+        "de": "Klimatemperatur (°C)",
+        "es": "Temperatura del clima (°C)"
+      },
+      "description": {
+        "en": "Cabin temperature asked for when the climate is started without one (16 to 30 °C).",
+        "fr": "Température de l’habitacle demandée quand la clim est lancée sans en préciser une (16 à 30 °C).",
+        "de": "Innenraumtemperatur, wenn die Klimatisierung ohne Angabe gestartet wird (16 bis 30 °C).",
+        "es": "Temperatura del habitáculo pedida cuando se enciende el clima sin indicar una (16 a 30 °C)."
+      },
+      "required": false,
+      "default": 21,
+      "min": 16,
+      "max": 30
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 60
+    },
+    {
+      "key": "wake_vehicle",
+      "label": {
+        "en": "Wake up a car",
+        "fr": "Réveiller une voiture",
+        "de": "Ein Auto aufwecken",
+        "es": "Despertar un coche"
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "identify",
+      "label": {
+        "en": "Identify a car (flash the lights)",
+        "fr": "Identifier une voiture (feux clignotants)",
+        "de": "Auto identifizieren (Lichter blinken)",
+        "es": "Identificar un coche (luces intermitentes)"
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": true
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "vehicle",
+      "label": {
+        "en": "Nissan car",
+        "fr": "Voiture Nissan",
+        "de": "Nissan-Auto",
+        "es": "Coche Nissan"
+      },
+      "description": {
+        "en": "Battery, range, charge, climate and doors of a car, with quick actions.",
+        "fr": "Batterie, autonomie, charge, clim et portes d’une voiture, avec actions rapides.",
+        "de": "Akku, Reichweite, Laden, Klima und Türen eines Autos, mit Schnellaktionen.",
+        "es": "Batería, autonomía, carga, clima y puertas de un coche, con acciones rápidas."
+      },
+      "icon": "battery-charging",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": false
+        },
+        {
+          "key": "show_location",
+          "type": "boolean",
+          "label": {
+            "en": "Show the map button",
+            "fr": "Afficher le bouton carte",
+            "de": "Kartenknopf anzeigen",
+            "es": "Mostrar el botón del mapa"
+          },
+          "description": {
+            "en": "Adds a button that opens the car's last position on OpenStreetMap. Leave it off on a dashboard others can see.",
+            "fr": "Ajoute un bouton qui ouvre la dernière position de la voiture sur OpenStreetMap. Laissez désactivé sur un tableau de bord visible par d’autres.",
+            "de": "Fügt einen Knopf hinzu, der die letzte Position des Autos auf OpenStreetMap öffnet. Lass es aus auf einem Dashboard, das andere sehen.",
+            "es": "Añade un botón que abre la última posición del coche en OpenStreetMap. Déjelo desactivado en un panel que otros puedan ver."
+          },
+          "required": false,
+          "default": false
+        }
+      ],
+      "action_timeout_seconds": 60
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "charging_changed",
+      "label": {
+        "en": "A Nissan car starts or stops charging",
+        "fr": "Une Nissan commence ou arrête de charger",
+        "de": "Ein Nissan beginnt oder beendet das Laden",
+        "es": "Un Nissan empieza o deja de cargar"
+      },
+      "description": {
+        "en": "Seen at the next read of the car (see the refresh interval), not at the exact second.",
+        "fr": "Vu à la lecture suivante de la voiture (voir l’intervalle de rafraîchissement), pas à la seconde près.",
+        "de": "Erkannt beim nächsten Lesen des Autos (siehe Aktualisierungsintervall), nicht auf die Sekunde genau.",
+        "es": "Detectado en la siguiente lectura del coche (ver el intervalo de actualización), no al segundo exacto."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": false
+        },
+        {
+          "key": "event",
+          "type": "multi_select",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          },
+          "options": [
+            {
+              "value": "started",
+              "label": {
+                "en": "Charge started",
+                "fr": "Charge démarrée",
+                "de": "Laden gestartet",
+                "es": "Carga iniciada"
+              }
+            },
+            {
+              "value": "stopped",
+              "label": {
+                "en": "Charge stopped",
+                "fr": "Charge arrêtée",
+                "de": "Laden beendet",
+                "es": "Carga detenida"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Car name",
+            "fr": "Nom de la voiture",
+            "de": "Name des Autos",
+            "es": "Nombre del coche"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          }
+        },
+        {
+          "key": "battery_level",
+          "type": "number",
+          "label": {
+            "en": "Battery (%)",
+            "fr": "Batterie (%)",
+            "de": "Akku (%)",
+            "es": "Batería (%)"
+          }
+        },
+        {
+          "key": "range",
+          "type": "number",
+          "label": {
+            "en": "Range",
+            "fr": "Autonomie",
+            "de": "Reichweite",
+            "es": "Autonomía"
+          }
+        }
+      ]
+    },
+    {
+      "key": "plug_changed",
+      "label": {
+        "en": "A Nissan car is plugged in or unplugged",
+        "fr": "Une Nissan est branchée ou débranchée",
+        "de": "Ein Nissan wird angesteckt oder abgesteckt",
+        "es": "Un Nissan se enchufa o desenchufa"
+      },
+      "description": {
+        "en": "Seen at the next read of the car (see the refresh interval), not at the exact second.",
+        "fr": "Vu à la lecture suivante de la voiture (voir l’intervalle de rafraîchissement), pas à la seconde près.",
+        "de": "Erkannt beim nächsten Lesen des Autos (siehe Aktualisierungsintervall), nicht auf die Sekunde genau.",
+        "es": "Detectado en la siguiente lectura del coche (ver el intervalo de actualización), no al segundo exacto."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": false
+        },
+        {
+          "key": "event",
+          "type": "multi_select",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          },
+          "options": [
+            {
+              "value": "plugged",
+              "label": {
+                "en": "Plugged in",
+                "fr": "Branchée",
+                "de": "Angesteckt",
+                "es": "Enchufado"
+              }
+            },
+            {
+              "value": "unplugged",
+              "label": {
+                "en": "Unplugged",
+                "fr": "Débranchée",
+                "de": "Abgesteckt",
+                "es": "Desenchufado"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "device_name",
+          "type": "string",
+          "label": {
+            "en": "Car name",
+            "fr": "Nom de la voiture",
+            "de": "Name des Autos",
+            "es": "Nombre del coche"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          }
+        },
+        {
+          "key": "battery_level",
+          "type": "number",
+          "label": {
+            "en": "Battery (%)",
+            "fr": "Batterie (%)",
+            "de": "Akku (%)",
+            "es": "Batería (%)"
+          }
+        },
+        {
+          "key": "range",
+          "type": "number",
+          "label": {
+            "en": "Range",
+            "fr": "Autonomie",
+            "de": "Reichweite",
+            "es": "Autonomía"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "climate_control",
+      "label": {
+        "en": "Start or stop the climate of a Nissan",
+        "fr": "Lancer ou arrêter la clim d’une Nissan",
+        "de": "Klima eines Nissan starten oder stoppen",
+        "es": "Encender o apagar el clima de un Nissan"
+      },
+      "description": {
+        "en": "Pre-heat or pre-cool the cabin. The output says whether Nissan accepted the order.",
+        "fr": "Préchauffe ou rafraîchit l’habitacle. La sortie indique si Nissan a accepté l’ordre.",
+        "de": "Heizt oder kühlt den Innenraum vor. Die Ausgabe sagt, ob Nissan den Befehl angenommen hat.",
+        "es": "Precalienta o enfría el habitáculo. La salida indica si Nissan aceptó la orden."
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": true
+        },
+        {
+          "key": "action",
+          "type": "select",
+          "required": true,
+          "default": "start",
+          "label": {
+            "en": "Action",
+            "fr": "Action",
+            "de": "Aktion",
+            "es": "Acción"
+          },
+          "options": [
+            {
+              "value": "start",
+              "label": {
+                "en": "Start",
+                "fr": "Lancer",
+                "de": "Starten",
+                "es": "Encender"
+              }
+            },
+            {
+              "value": "stop",
+              "label": {
+                "en": "Stop",
+                "fr": "Arrêter",
+                "de": "Stoppen",
+                "es": "Apagar"
+              }
+            }
+          ]
+        },
+        {
+          "key": "temperature",
+          "type": "number",
+          "required": false,
+          "min": 16,
+          "max": 30,
+          "label": {
+            "en": "Temperature (°C)",
+            "fr": "Température (°C)",
+            "de": "Temperatur (°C)",
+            "es": "Temperatura (°C)"
+          },
+          "placeholder": {
+            "en": "empty = the configured one",
+            "fr": "vide = celle de la configuration",
+            "de": "leer = die konfigurierte",
+            "es": "vacío = la configurada"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "accepted",
+          "type": "boolean",
+          "label": {
+            "en": "Order accepted",
+            "fr": "Ordre accepté",
+            "de": "Befehl angenommen",
+            "es": "Orden aceptada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "charging_control",
+      "label": {
+        "en": "Start or stop the charge of a Nissan",
+        "fr": "Lancer ou arrêter la charge d’une Nissan",
+        "de": "Laden eines Nissan starten oder stoppen",
+        "es": "Iniciar o detener la carga de un Nissan"
+      },
+      "description": {
+        "en": "The car must be plugged in. The output says whether Nissan accepted the order.",
+        "fr": "La voiture doit être branchée. La sortie indique si Nissan a accepté l’ordre.",
+        "de": "Das Auto muss angesteckt sein. Die Ausgabe sagt, ob Nissan den Befehl angenommen hat.",
+        "es": "El coche debe estar enchufado. La salida indica si Nissan aceptó la orden."
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": true
+        },
+        {
+          "key": "action",
+          "type": "select",
+          "required": true,
+          "default": "start",
+          "label": {
+            "en": "Action",
+            "fr": "Action",
+            "de": "Aktion",
+            "es": "Acción"
+          },
+          "options": [
+            {
+              "value": "start",
+              "label": {
+                "en": "Start",
+                "fr": "Lancer",
+                "de": "Starten",
+                "es": "Iniciar"
+              }
+            },
+            {
+              "value": "stop",
+              "label": {
+                "en": "Stop",
+                "fr": "Arrêter",
+                "de": "Stoppen",
+                "es": "Detener"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "accepted",
+          "type": "boolean",
+          "label": {
+            "en": "Order accepted",
+            "fr": "Ordre accepté",
+            "de": "Befehl angenommen",
+            "es": "Orden aceptada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "refresh_status",
+      "label": {
+        "en": "Read the status of a Nissan",
+        "fr": "Lire l’état d’une Nissan",
+        "de": "Status eines Nissan lesen",
+        "es": "Leer el estado de un Nissan"
+      },
+      "description": {
+        "en": "Reads the car now and hands its battery, range and charge to the next actions.",
+        "fr": "Lit la voiture maintenant et passe batterie, autonomie et charge aux actions suivantes.",
+        "de": "Liest das Auto jetzt und gibt Akku, Reichweite und Laden an die nächsten Aktionen weiter.",
+        "es": "Lee el coche ahora y pasa batería, autonomía y carga a las acciones siguientes."
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": true
+        },
+        {
+          "key": "wake",
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "label": {
+            "en": "Wake the car up first",
+            "fr": "Réveiller la voiture d’abord",
+            "de": "Auto zuerst aufwecken",
+            "es": "Despertar el coche antes"
+          },
+          "description": {
+            "en": "The fresh data then arrives a few minutes later: the values read now are the previous ones.",
+            "fr": "Les données fraîches arrivent alors quelques minutes plus tard : les valeurs lues maintenant sont les précédentes.",
+            "de": "Die frischen Daten kommen dann einige Minuten später: Die jetzt gelesenen Werte sind die vorherigen.",
+            "es": "Los datos nuevos llegan entonces unos minutos después: los valores leídos ahora son los anteriores."
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "battery_level",
+          "type": "number",
+          "label": {
+            "en": "Battery (%)",
+            "fr": "Batterie (%)",
+            "de": "Akku (%)",
+            "es": "Batería (%)"
+          }
+        },
+        {
+          "key": "range",
+          "type": "number",
+          "label": {
+            "en": "Range",
+            "fr": "Autonomie",
+            "de": "Reichweite",
+            "es": "Autonomía"
+          }
+        },
+        {
+          "key": "plugged",
+          "type": "boolean",
+          "label": {
+            "en": "Plugged in",
+            "fr": "Branchée",
+            "de": "Angesteckt",
+            "es": "Enchufado"
+          }
+        },
+        {
+          "key": "charging",
+          "type": "boolean",
+          "label": {
+            "en": "Charging",
+            "fr": "En charge",
+            "de": "Lädt",
+            "es": "Cargando"
+          }
+        }
+      ]
+    },
+    {
+      "key": "horn_lights",
+      "label": {
+        "en": "Flash the lights of a Nissan",
+        "fr": "Faire clignoter les feux d’une Nissan",
+        "de": "Lichter eines Nissan blinken lassen",
+        "es": "Hacer parpadear las luces de un Nissan"
+      },
+      "description": {
+        "en": "Flash the lights, or flash them and sound the horn, to find the car.",
+        "fr": "Fait clignoter les feux, ou clignoter et klaxonner, pour retrouver la voiture.",
+        "de": "Lässt die Lichter blinken, oder blinken und hupen, um das Auto zu finden.",
+        "es": "Hace parpadear las luces, o parpadear y tocar el claxon, para encontrar el coche."
+      },
+      "timeout_seconds": 60,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Car",
+            "fr": "Voiture",
+            "de": "Auto",
+            "es": "Coche"
+          },
+          "required": true
+        },
+        {
+          "key": "target",
+          "type": "select",
+          "required": true,
+          "default": "lights",
+          "label": {
+            "en": "Signal",
+            "fr": "Signal",
+            "de": "Signal",
+            "es": "Señal"
+          },
+          "options": [
+            {
+              "value": "lights",
+              "label": {
+                "en": "Lights",
+                "fr": "Feux",
+                "de": "Lichter",
+                "es": "Luces"
+              }
+            },
+            {
+              "value": "horn_lights",
+              "label": {
+                "en": "Horn and lights",
+                "fr": "Klaxon et feux",
+                "de": "Hupe und Lichter",
+                "es": "Claxon y luces"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "accepted",
+          "type": "boolean",
+          "label": {
+            "en": "Order accepted",
+            "fr": "Ordre accepté",
+            "de": "Befehl angenommen",
+            "es": "Orden aceptada"
+          }
+        }
+      ]
+    }
+  ]
+}
