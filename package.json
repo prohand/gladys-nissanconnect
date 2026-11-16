@@ -1,6 +1,6 @@
 {
   "name": "gladys-nissanconnect",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "description": "Gladys Assistant external integration for Nissan Connect electric vehicles (battery, charging, climate, location).",
   "type": "module",
