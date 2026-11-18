@@ -6,6 +6,8 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.0.5] - 2026-11-18
+
 ### Changed
 
 - Declared for Europe only (`countries: ["GB", "IE", "FR", "BE", "LU", "NL", "DE", "AT", "CH", "IT", "ES", "PT", "NO", "SE", "DK", "FI", "PL", "CZ", "HU", "SK"]`): the Gladys
@@ -46,7 +48,8 @@ All notable changes to this integration are documented here. The format follows
 - Configuration screen actions: test the connection, wake up a car, identify a car.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.4...HEAD
+[Unreleased]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.5...HEAD
+[0.0.5]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.4...v0.0.5
 [0.0.4]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/prohand/gladys-nissanconnect/compare/v0.0.1...v0.0.2
