@@ -6,6 +6,12 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Declared for Europe only (`countries: ["GB", "IE", "FR", "BE", "LU", "NL", "DE", "AT", "CH", "IT", "ES", "PT", "NO", "SE", "DK", "FI", "PL", "CZ", "HU", "SK"]`): the Gladys
+  catalog of an instance located elsewhere no longer lists it in its browse
+  views (the search still finds it). Requires Gladys 5.3.0 or later.
+
 ## [0.0.4] - 2026-11-16
 
 - Maintenance release, no functional change.
