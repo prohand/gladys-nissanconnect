@@ -225,3 +225,33 @@ test('the user documentation exists in every language', async () => {
     assert.ok(text.length > 1000, `docs/${language}.md is too short`);
   }
 });
+
+test('the catalog countries: Europe, which needs Gladys >= 5.3.0', () => {
+  // Only the European NissanConnect Services cloud is supported: its 20 main markets (the field takes 20 codes at most).
+  // Declared, the catalog of an instance located elsewhere hides the
+  // integration from its browse views (the search still finds it).
+  assert.deepEqual(manifest.countries, [
+    'GB',
+    'IE',
+    'FR',
+    'BE',
+    'LU',
+    'NL',
+    'DE',
+    'AT',
+    'CH',
+    'IT',
+    'ES',
+    'PT',
+    'NO',
+    'SE',
+    'DK',
+    'FI',
+    'PL',
+    'CZ',
+    'HU',
+    'SK',
+  ]);
+  const [major, minor] = manifest.gladys_version.replace(/^>=/, '').split('.').map(Number);
+  assert.ok(major > 5 || (major === 5 && minor >= 3), 'countries needs Gladys 5.3.0');
+});
